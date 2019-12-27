@@ -52,30 +52,26 @@ String TelegramBOT::connectToTelegram(String command)  {
     IPAddress server(149,154,167,198);
     client.setFingerprint("BB DC 45 2A 07 E3 4A 71 33 40 32 DA BE 81 F7 72 6F 4A 2B 6B");
     
-    if (client.connect(server, 443)) {  
-        //Serial.println(".... connected to server");
+    if (client.connect(server, 443)) {
         String a="";
         char c;
-	int ch_count=0;
+        int ch_count=0;
         client.println("GET /"+command);
         now=millis();
         avail=false;
+
         while (millis()-now<1500) {  
             while (client.available()) {
-	      char c = client.read();
-              //Serial.write(c);
-              if (ch_count<700)  {
-                 mess=mess+c;
-	         ch_count++;
-	      }
-              avail=true;
-	    }
+                char c = client.read();
+                if (ch_count<700) {
+                    mess=mess+c;
+                    ch_count++;
+                }
+                avail=true;
+            }
             if (avail) {
-		//Serial.println();
-		//Serial.println(mess);
-		//Serial.println();
-		break;
-	    }
+                break;
+            }
         }
     }
     return mess;
@@ -153,13 +149,11 @@ void TelegramBOT::getUpdates(String offset)  {
 void TelegramBOT::sendMessage(String chat_id, String text, String reply_markup)  {
 
     bool sent=false;
-   // Serial.println("SEND Message ");
     long sttime=millis();
     if (text!=""  && (WiFi.status() == WL_CONNECTED)) {
 	    while (millis()<sttime+8000) {    // loop for a while to send the message
 		String command="bot"+_token+"/sendMessage?chat_id="+chat_id+"&text="+text+"&reply_markup="+reply_markup;
 		String mess=connectToTelegram(command);
-		//Serial.println(mess);
 		int messageLenght=mess.length();
 		for (int m=5; m<messageLenght+1; m++)  {
 		    if (mess.substring(m-10,m)=="{\"ok\":true")     {  //Chek if message has been properly sent
@@ -168,22 +162,69 @@ void TelegramBOT::sendMessage(String chat_id, String text, String reply_markup) 
 		    }
 		}
 		if (sent==true)   {
-		//  Serial.print("Message delivred: \"");
-		//  Serial.print(text);
-		//  Serial.println("\"");
-		//  Serial.println();
 		  break;
 		}
 		delay(1000);
-	//	Serial.println("Retry");
 
 	    }
     }
-   // if (sent==false) Serial.println("Message not delivered");
 }
 
+/***********************************************************************
+ * SendPhoto - function to send photo to telegram                      *
+ * (Arguments to pass: chat_id, url to transmit and markup(optional))  *
+ ***********************************************************************/
+void TelegramBOT::sendPhoto(String chat_id, String photo, String caption, String reply_markup)  {
 
+    bool sent=false;
+    long sttime=millis();
+    if (photo!=""  && (WiFi.status() == WL_CONNECTED)) {
+	    while (millis()<sttime+8000) {    // loop for a while to send the message
+		String command="bot"+_token+"/sendPhoto?chat_id="+chat_id+"&photo="+photo+"&caption="+caption+"&reply_markup="+reply_markup;
+		String mess=connectToTelegram(command);
+		int messageLenght=mess.length();
+		for (int m=5; m<messageLenght+1; m++)  {
+		    if (mess.substring(m-10,m)=="{\"ok\":true") {  //Chek if message has been properly sent
+		        sent=true;
+		        break;
+		    }
+		}
+		if (sent==true)   {
+		  break;
+		}
+		delay(1000);
 
+	    }
+    }
+}
+
+/***********************************************************************
+ * SendAnimation - function to send animation to telegram              *
+ * (Arguments to pass: chat_id, url to transmit and markup(optional))  *
+ ***********************************************************************/
+void TelegramBOT::SendAnimation(String chat_id, String animation, String caption, String reply_markup) {
+
+    bool sent=false;
+    long sttime=millis();
+    if (animation!=""  && (WiFi.status() == WL_CONNECTED)) {
+	    while (millis()<sttime+8000) {    // loop for a while to send the message
+		String command="bot"+_token+"/SendAnimation?chat_id="+chat_id+"&animation="+animation+"&caption="+caption+"&reply_markup="+reply_markup;
+		String mess=connectToTelegram(command);
+		int messageLenght=mess.length();
+		for (int m=5; m<messageLenght+1; m++)  {
+		    if (mess.substring(m-10,m)=="{\"ok\":true")     {  //Chek if message has been properly sent
+		        sent=true;
+		        break;
+		    }
+		}
+		if (sent==true)   {
+		  break;
+		}
+		delay(1000);
+
+	    }
+    }
+}
 
 
 /******************************************************************************
